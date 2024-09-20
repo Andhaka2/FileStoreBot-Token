@@ -10,7 +10,7 @@ from logging.handlers import RotatingFileHandler
 
 
 #Bot token @Botfather
-TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "7429454574:AAGAfGi02X-nXTVnBszhK2865_I1wZzAtQ4")
+TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "7927297461:AAEeEayAfI5jsEzaclxJ1a8qP9bBywYS_NQ")
 
 #Your API ID from my.telegram.org
 APP_ID = int(os.environ.get("APP_ID", "21534788"))
@@ -19,7 +19,7 @@ APP_ID = int(os.environ.get("APP_ID", "21534788"))
 API_HASH = os.environ.get("API_HASH", "b7b0c58e32c725914c2c1483a621c57a")
 
 #Your db channel Id
-CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002395750890"))
+CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002404318407"))
 
 #OWNER ID
 OWNER_ID = int(os.environ.get("OWNER_ID", "5749343005"))
@@ -39,7 +39,7 @@ TUT_VID = os.environ.get("TUT_VID","gojfsi/2")
 
 
 #force sub channel id, if you want enable force sub
-FORCE_SUB_CHANNEL = int(os.environ.get("FORCE_SUB_CHANNEL", "https://t.me/+CZJ-in5WE9lmNGFl"))
+FORCE_SUB_CHANNEL = int(os.environ.get("FORCE_SUB_CHANNEL", "-1002382423357"))
 
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
 
@@ -47,7 +47,7 @@ TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
 START_MSG = os.environ.get("START_MESSAGE", "Hello {first}\n\nI can store private files in Specified Channel and other users can access it from special link.")
 try:
     ADMINS=[]
-    for x in (os.environ.get("ADMINS", "6852649461").split()):
+    for x in (os.environ.get("ADMINS", "5749343005").split()):
         ADMINS.append(int(x))
 except ValueError:
         raise Exception("Your Admins list does not contain valid integers.")
