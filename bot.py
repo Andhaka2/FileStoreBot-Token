@@ -1,7 +1,4 @@
 from aiohttp import web
-from plugins import web_server
-
-import pyromod.listen
 from pyrogram import Client
 from pyrogram.enums import ParseMode
 import sys
@@ -15,7 +12,6 @@ class Bot(Client):
             name="Bot",
             api_hash=API_HASH,
             api_id=APP_ID,
-            plugins={"root": "plugins"},
             workers=TG_BOT_WORKERS,
             bot_token=TG_BOT_TOKEN,
         )
@@ -30,8 +26,7 @@ class Bot(Client):
         if FORCE_SUB_CHANNEL:
             try:
                 chat = await self.get_chat(FORCE_SUB_CHANNEL)
-                link = chat.invite_link or await self.export_chat_invite_link(FORCE_SUB_CHANNEL)
-                self.invitelink = link
+                self.invitelink = chat.invite_link or await self.export_chat_invite_link(FORCE_SUB_CHANNEL)
             except Exception as e:
                 self.LOGGER(__name__).warning(e)
                 self.LOGGER(__name__).warning("Error exporting invite link from Force Sub Channel!")
@@ -52,7 +47,7 @@ class Bot(Client):
 
         # Setup web server
         app = web.Application()
-        app.add_routes([web.get('/', self.handle)])
+        app.router.add_get('/', self.handle)
         runner = web.AppRunner(app)
         await runner.setup()
         bind_address = "0.0.0.0"
