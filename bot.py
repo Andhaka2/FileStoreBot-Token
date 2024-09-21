@@ -1,5 +1,3 @@
-#(©)Codexbotz
-
 from aiohttp import web
 from plugins import web_server
 
@@ -17,11 +15,9 @@ class Bot(Client):
             name="Bot",
             api_hash=API_HASH,
             api_id=APP_ID,
-            plugins={
-                "root": "plugins"
-            },
+            plugins={"root": "plugins"},
             workers=TG_BOT_WORKERS,
-            bot_token=TG_BOT_TOKEN
+            bot_token=TG_BOT_TOKEN,
         )
         self.LOGGER = LOGGER
 
@@ -30,47 +26,46 @@ class Bot(Client):
         usr_bot_me = await self.get_me()
         self.uptime = datetime.now()
 
+        # Handle FORCE_SUB_CHANNEL
         if FORCE_SUB_CHANNEL:
             try:
-                link = (await self.get_chat(FORCE_SUB_CHANNEL)).invite_link
-                if not link:
-                    await self.export_chat_invite_link(FORCE_SUB_CHANNEL)
-                    link = (await self.get_chat(FORCE_SUB_CHANNEL)).invite_link
+                chat = await self.get_chat(FORCE_SUB_CHANNEL)
+                link = chat.invite_link or await self.export_chat_invite_link(FORCE_SUB_CHANNEL)
                 self.invitelink = link
-            except Exception as a:
-                self.LOGGER(__name__).warning(a)
-                self.LOGGER(__name__).warning("Bot can't Export Invite link from Force Sub Channel!")
-                self.LOGGER(__name__).warning(f"Please Double check the FORCE_SUB_CHANNEL value and Make sure Bot is Admin in channel with Invite Users via Link Permission, Current Force Sub Channel Value: {FORCE_SUB_CHANNEL}")
-                self.LOGGER(__name__).info("\nBot Stopped. Join https://t.me/susanta_bhandarii for support")
+            except Exception as e:
+                self.LOGGER(__name__).warning(e)
+                self.LOGGER(__name__).warning("Error exporting invite link from Force Sub Channel!")
                 sys.exit()
+
+        # Check channel access
         try:
-            db_channel = await self.get_chat(CHANNEL_ID)
-            self.db_channel = db_channel
-            test = await self.send_message(chat_id = db_channel.id, text = "Test Message")
-            await test.delete()
+            self.db_channel = await self.get_chat(CHANNEL_ID)
+            await self.send_message(chat_id=self.db_channel.id, text="Test Message").delete()
         except Exception as e:
             self.LOGGER(__name__).warning(e)
-            self.LOGGER(__name__).warning(f"Make Sure bot is Admin in DB Channel, and Double check the CHANNEL_ID Value, Current Value {CHANNEL_ID}")
-            self.LOGGER(__name__).info("\nBot Stopped. Join https://t.me/susanta_bhandarii for support")
+            self.LOGGER(__name__).warning("Ensure bot is an admin in the DB Channel.")
             sys.exit()
 
         self.set_parse_mode(ParseMode.HTML)
-        self.LOGGER(__name__).info(f"Bot Running..!\n\nCreated by \nhttps://t.me/waspros")
-        self.LOGGER(__name__).info(f""" \n\n       
-░█████╗░░█████╗░██████╗░███████╗██╗░░██╗██████╗░░█████╗░████████╗███████╗
-██╔══██╗██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝██╔══██╗██╔══██╗╚══██╔══╝╚════██║
-██║░░╚═╝██║░░██║██║░░██║█████╗░░░╚███╔╝░██████╦╝██║░░██║░░░██║░░░░░███╔═╝
-██║░░██╗██║░░██║██║░░██║██╔══╝░░░██╔██╗░██╔══██╗██║░░██║░░░██║░░░██╔══╝░░
-╚█████╔╝╚█████╔╝██████╔╝███████╗██╔╝╚██╗██████╦╝╚█████╔╝░░░██║░░░███████╗
-░╚════╝░░╚════╝░╚═════╝░╚══════╝╚═╝░░╚═╝╚═════╝░░╚════╝░░░░╚═╝░░░╚══════╝
-                                          """)
+        self.LOGGER(__name__).info("Bot Running..!\n\nCreated by https://t.me/waspros")
         self.username = usr_bot_me.username
-        #web-response
-        app = web.AppRunner(await web_server())
-        await app.setup()
+
+        # Setup web server
+        app = web.Application()
+        app.add_routes([web.get('/', self.handle)])
+        runner = web.AppRunner(app)
+        await runner.setup()
         bind_address = "0.0.0.0"
-        await web.TCPSite(app, bind_address, PORT).start()
+        await web.TCPSite(runner, bind_address, PORT).start()
+
+    async def handle(self, request):
+        return web.Response(text="Hello, world!")
 
     async def stop(self, *args):
         await super().stop()
         self.LOGGER(__name__).info("Bot stopped.")
+
+# Main execution
+if __name__ == "__main__":
+    bot = Bot()
+    bot.run()
