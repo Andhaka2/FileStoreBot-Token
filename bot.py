@@ -28,18 +28,18 @@ class Bot(Client):
                 chat = await self.get_chat(FORCE_SUB_CHANNEL)
                 self.invitelink = chat.invite_link or await self.export_chat_invite_link(FORCE_SUB_CHANNEL)
             except Exception as e:
-                self.LOGGER(__name__).warning(e)
+                self.LOGGER(__name__).warning(f"Error exporting invite link: {e}")
                 self.LOGGER(__name__).warning("Error exporting invite link from Force Sub Channel!")
-                sys.exit()
+                sys.exit(1)
 
         # Check channel access
         try:
             self.db_channel = await self.get_chat(CHANNEL_ID)
             await self.send_message(chat_id=self.db_channel.id, text="Test Message").delete()
         except Exception as e:
-            self.LOGGER(__name__).warning(e)
+            self.LOGGER(__name__).warning(f"Access error: {e}")
             self.LOGGER(__name__).warning("Ensure bot is an admin in the DB Channel.")
-            sys.exit()
+            sys.exit(1)
 
         self.set_parse_mode(ParseMode.HTML)
         self.LOGGER(__name__).info("Bot Running..!\n\nCreated by https://t.me/waspros")
